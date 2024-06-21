@@ -98,9 +98,13 @@ int main() {
 
         Suddivido con uno switch comando in ingresso
             AGGIUNGI-RICETTA
+                READ
             RIMUOVI-RICETTA
+                READ
             RIFORNIMENTO
+                READ
             ORDINE
+                READ
 
     RICORDARSI DI FARE LE VARIE FREE
 }
