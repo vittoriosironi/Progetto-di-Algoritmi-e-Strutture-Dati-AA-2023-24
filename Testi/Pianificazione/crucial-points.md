@@ -1,5 +1,5 @@
 ## Lunghezza stringhe
-Le stringhe sono lunghe fino a 255 caratteri \
+Le stringhe sono lunghe fino a 255 caratteri -> in realtà si può fare molto di meno
 # Gli ordini vengono smaltiti per ordine di preparazione o di istante di tempo in cui ordinati?
 
 
