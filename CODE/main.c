@@ -64,8 +64,10 @@ struct Lista_Lotti {
 unsigned int hashing(const char *str, int dim);
 
 int lista_ricette_insert(struct Lista_Ricette *ricette, struct Ricetta* x);
+int lista_ricetta_delete(struct Lista_Ricette* ricette, char nome[]);
 struct Ricetta* lista_ricette_creazione_nodo(char nome[]);
 void aggiunta_ricetta(struct Lista_Ricette *ricette_hashTable[]);
+void rimozione_ricetta(struct Lista_Ricette *ricette_hashTable[]);
 
 struct Ingrediente* lista_ingredienti_creazione_nodo(char nome[], int qta);
 void lista_ingredienti_insert(struct Lista_Ingredienti *ingredienti, struct Ingrediente *x);
@@ -116,7 +118,7 @@ int main() {
             if (!strcmp(input, AGGIUNGI_RICETTA)) {
                 aggiunta_ricetta(ricette_hashTable);
             } else if (!strcmp(input, RIMUOVI_RICETTA)) {
-
+                rimozione_ricetta(ricette_hashTable);
             } else if (!strcmp(input, RIFORNIMENTO)) {
                 rifornimento(lotti_hashTable);
             } else if (!strcmp(input, ORDINE)) {
@@ -236,6 +238,27 @@ int lista_ricette_insert(struct Lista_Ricette *ricette, struct Ricetta* x) {
     ricette->size += 1;
     return 0;
 }
+int lista_ricetta_delete(struct Lista_Ricette* ricette, char nome[]) {
+    struct Ricetta* nodo = ricette->head;
+
+    while(nodo && strcmp(nodo->nome, nome))
+        nodo = nodo->next;
+
+    if(!strcmp(nodo->nome, nome)) {
+        if (nodo != ricette->head)
+            nodo->prev->next = nodo->next;
+        else
+            ricette->head = nodo->next;
+
+        if (nodo->next)
+            nodo->next->prev = nodo->prev;
+        
+        ricette->size -= 1;
+        return 1;
+    }
+
+    return 0;
+}
 
 // --- Gestione aggiunta ricetta ---
 // aggiungi_ricetta <nome_ricetta> <nome_ingrediente> <quantità> ...
@@ -280,6 +303,28 @@ void aggiunta_ricetta(struct Lista_Ricette *ricette_hashTable[]) {
     }
 
     printf("aggiunta\n");
+}
+
+// 729
+// --- Gestione rimozione ricetta ---
+// rimuovi_ricetta <nome_ricetta>
+void rimozione_ricetta(struct Lista_Ricette *ricette_hashTable[]) {
+    unsigned int hash;
+    int eliminata = 0;
+    char nome_ricetta[MAX_LENGTH];
+    struct Lista_Ricette* lista_ricetta;
+
+    if (scanf("%s", nome_ricetta)) {}
+    hash = hashing(nome_ricetta, M_HASH_TABLE_RICETTE);
+    // printf("%d", hash);
+    lista_ricetta = ricette_hashTable[hash];
+
+    eliminata = lista_ricetta_delete(lista_ricetta, nome_ricetta);
+
+    if (eliminata)
+        printf("rimossa");
+    else
+        printf("non presente");
 }
 
 // --- FUNZIONI INGREDIENTI ---
@@ -333,7 +378,7 @@ struct Lotto* lista_lotti_insert(struct Lista_Lotti *lotti, struct Lotto *x) {
     return NULL;
 }
 
-// --- ALbero Lotti ---
+// --- Albero Lotti ---
 struct Foglia_Lotto* albero_lotti_creazione_foglia(int qta, int scadenza) {
     struct Foglia_Lotto* x = calloc(1, sizeof(struct Foglia_Lotto));
 
@@ -368,7 +413,6 @@ void albero_lotti_insert(struct Albero_Lotti* sub_lotti, struct Foglia_Lotto* x)
     sub_lotti->size += 1;
 }
 
-// 34, 33
 // --- Gestione rifornimento ----
 // rifornimento <nome_ingrediente> <qta> <scadenza> ...
 void rifornimento(struct Lista_Lotti* lotti_hashTable[]) {

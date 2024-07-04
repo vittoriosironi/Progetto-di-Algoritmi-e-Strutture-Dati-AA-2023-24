@@ -1,4 +1,4 @@
 100 100
-rifornimento zucchero 200 150 zucchero 1000 220
 aggiungi_ricetta io sono 12
+rimuovi_ricetta io
 ordine 13
