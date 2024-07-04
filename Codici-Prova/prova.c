@@ -46,7 +46,7 @@ unsigned int normalize(char *key) {
 
 unsigned int hashing(char *key) {
     int normalize_key = normalize(key);
-    return (int) ( M_HASH_TABLE * decimal(normalize_key * CONST_HASH));
+    return (int) ( M_HASH_TABLE_RICETTE * decimal(normalize_key * CONST_HASH));
 }
 
 
