@@ -35,6 +35,7 @@ Creo una coda parte che mi segnala solo gli ordini in attesa
 # Idee - Miscellanous
 Noto già che sarà necessario accedere continuamente alla lista delle ricetta, quindi per trovare la ricetta più velocemente possiamo usare una `hash table` -> uso il `metodo delle moltiplicazioni` \
 Anche per i lotti per quando faccio i rifornimenti uso una `hash table` e per ogni posizione di questa c'è un `albero figlio` che ha i lotti in ordine di data di scadenza. \
-Per gli ordini possiamo usare una `coda` così da tenerli in ordine cronologico.
+NO -> per gli ordini possiamo usare una `coda` così da tenerli in ordine cronologico.
+PER GLI ORDINI FACCIO UN `albero`
 Una volta capito quali sono quelli da evadere, di ordini, uso un algoritmo di ordinamento per ordinarli a seconda del peso in un'altra struttura dati tipo un'`array` che contiene i puntatori alla coda. \
 Per gli ordini in attesa uso una `coda`, quando l'ordine potrà essere preparato viene letto e spostato nella coda degli ordini preparati. Mi salvo il puntatore del primo ordine che rimane in attesa così poi la coda la riporto lì

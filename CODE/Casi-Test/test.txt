@@ -1,4 +1,6 @@
 100 100
+ordine io 10
 aggiungi_ricetta io sono 12
+ordine io 2
 rimuovi_ricetta io
 ordine 13
