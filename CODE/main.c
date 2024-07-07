@@ -86,6 +86,18 @@ struct Lista_Ordini_Attesa {
     int size;
 };
 
+// --- Lista Corriere ---
+struct Ordine_Corriere {
+    struct Ordine_Corriere *right, *left, *padre;
+    struct Ricetta *ricetta;
+    int n_elementi;
+    int data; 
+};
+struct Albero_Ordini_Corriere {
+    struct Ordine_Corriere *root;
+    int size;
+};
+
 // --- FUNZIONI ---
 unsigned int hashing(const char *str, int dim);
 
@@ -112,6 +124,9 @@ void rifornimento(struct Lista_Lotti* lotti_hashTable[], struct Lista_Ordini_Att
 
 struct Ordine* albero_ordini_creazione_foglia(struct Ricetta *ricetta, int n_elementi, int data);
 void albero_ordini_insert(struct Albero_Ordini *ordini_albero, struct Ordine *x);
+struct Ordine* albero_ordini_min(struct Ordine* root);
+struct Ordine* albero_ordini_successor(struct Ordine* ordine);
+void albero_ordini_delete(struct Albero_Ordini *ordini_albero, struct Ordine *x);
 void aggiunta_ordine(struct Albero_Ordini *ordini_albero, struct Lista_Ricette *ricette_hashTable[], struct Lista_Lotti *lotti_hashTable[], struct Lista_Ordini_Attesa* ordini_attesa_lista, int tempo);
 int ordine_controllo_attesa(struct Lista_Lotti *lotti_hashTable[], struct Ricetta* ricetta, int n_elementi);
 int preparazione_ordine(struct Lista_Lotti *lotti_hashTable[], struct Lista_Ordini_Attesa *ordini_attesa_lista, struct Ricetta* ricetta, int n_elementi, int data);
@@ -121,10 +136,17 @@ void controllo_ordini_attesa(struct Lista_Lotti *lotti_hashTable[], struct Lista
 void lista_ordini_attesa_insert(struct Lista_Ordini_Attesa* lista_ordine_attesa, struct Ordine_Attesa *x);
 struct Ordine_Attesa* lista_ordini_attesa_creazione_nodo(int n_elementi, int data, struct Ricetta* ricetta);
 struct Ordine_Attesa* lista_ordini_attesa_search(struct Lista_Ordini_Attesa* ordine_attesa_lista, char nome[]);
+void lista_ordini_attesa_delete(struct Lista_Ordini_Attesa* ordini_attesa, struct Ordine_Attesa *x);
+
+struct Ordine_Corriere* albero_ordini_corriere_creazione_foglia(struct Ricetta *ricetta, int n_elementi, int data);
+void albero_ordini_corriere_insert(struct Albero_Ordini_Corriere *ordini_corriere_albero, struct Ordine_Corriere *x);
+void evasione_ordini(struct Albero_Ordini* ordini);
 
 
 // --- UTILITIES ---
 void print_error();
+void print_corriere(struct Albero_Ordini_Corriere* ordini_corriere);
+void print_corriere_foglia(struct Ordine_Corriere* ordine);
 int inizializzazione_memoria(struct Lista_Ricette *ricette_hashTable[], struct Lista_Lotti *lotti_hashTable[], struct Albero_Ordini **ordini_albero, struct Lista_Ordini_Attesa **ordini_attesa_lista);
 float decimal(float num);
 void swap (int *x, int *y);
@@ -137,6 +159,8 @@ void free_albero_sub_lotti(struct Foglia_Lotto *sub_lotto);
 void free_ordini(struct Albero_Ordini* ordini_albero);
 void free_albero_ordini(struct Ordine* ordine);
 void free_ordini_attesa(struct Lista_Ordini_Attesa *ordini_attesa_lista);
+void free_ordini_corriere(struct Albero_Ordini_Corriere *ordini_corriere);
+void free_albero_ordini_corriere(struct Ordine_Corriere* ordine);
 
 
 int main() {
@@ -163,12 +187,12 @@ int main() {
 
     scanf("%d %d", &PERIODO_CORRIERE, &CAPIENZA_CORRIERE);
 
-    for(tempo = 0; pass != -1; tempo++) { // -> DA SISTEMARE
-        //printf("%d\n", tempo);
+    for(tempo = 0; pass != -1; tempo++) {
         pass = scanf("%s", input);
 
         if (pass != -1) {
-            // printf("%s \n", input);
+            if (tempo % PERIODO_CORRIERE == 0 && tempo != 0)
+                evasione_ordini(ordini_albero);
 
             if (!strcmp(input, AGGIUNGI_RICETTA)) {
                 aggiunta_ricetta(ricette_hashTable);
@@ -192,6 +216,16 @@ int main() {
 
 // --- UTILITIES ---
 void print_error() { printf("ERROR\n"); }
+void print_corriere(struct Albero_Ordini_Corriere* ordini_corriere) {
+    return print_corriere_foglia(ordini_corriere->root);
+}
+void print_corriere_foglia(struct Ordine_Corriere* ordine) {
+    if (ordine)
+        return;
+    print_corriere_foglia(ordine->left);
+    printf("%d %s %d\n", ordine->data, ordine->ricetta->nome, ordine->n_elementi);
+    print_corriere_foglia(ordine->right);
+}
 int inizializzazione_memoria(struct Lista_Ricette *ricette_hashTable[], struct Lista_Lotti *lotti_hashTable[], struct Albero_Ordini **ordini_albero, struct Lista_Ordini_Attesa **ordini_attesa_lista) {
     for (int i = 0; i < M_HASH_TABLE_RICETTE; i++) {
         ricette_hashTable[i] = (struct Lista_Ricette *)calloc(1, sizeof(struct Lista_Ricette));
@@ -212,7 +246,7 @@ int inizializzazione_memoria(struct Lista_Ricette *ricette_hashTable[], struct L
         return 1;
     
     *ordini_attesa_lista = (struct Lista_Ordini_Attesa *) calloc(1, sizeof(struct Lista_Ordini_Attesa));
-    if(*ordini_attesa_lista == NULL)
+    if (*ordini_attesa_lista == NULL)
         return 1;
 
     return 0;
@@ -290,7 +324,7 @@ void free_albero_ordini(struct Ordine* ordine) {
         return;
     free_albero_ordini(ordine->left);
     free_albero_ordini(ordine->right);
-    free_albero_ordini(ordine);
+    free(ordine);
 }
 void free_ordini_attesa(struct Lista_Ordini_Attesa *ordini_attesa_lista) {
     struct Ordine_Attesa *ordine_attesa = ordini_attesa_lista->head;
@@ -301,6 +335,16 @@ void free_ordini_attesa(struct Lista_Ordini_Attesa *ordini_attesa_lista) {
         free(ordine_attesa);
         ordine_attesa = temp;
     }
+}
+void free_ordini_corriere(struct Albero_Ordini_Corriere* ordini_corriere_albero) {
+    free_albero_ordini_corriere(ordini_corriere_albero->root);
+}
+void free_albero_ordini_corriere(struct Ordine_Corriere* ordine) {
+    if (ordine == NULL)
+        return;
+    free_albero_ordini_corriere(ordine->left);
+    free_albero_ordini_corriere(ordine->right);
+    free_albero_ordini_corriere(ordine);
 }
 
 
@@ -441,15 +485,15 @@ void rimozione_ricetta(struct Lista_Ricette *ricette_hashTable[], struct Lista_O
 
     ordine_attesa = lista_ordini_attesa_search(ordini_attesa_lista, nome_ricetta);
     if (ordine_attesa) {
-        printf("ordini in sospeso");
+        printf("ordini in sospeso\n");
         return;
     }
     eliminata = lista_ricetta_delete(lista_ricetta, nome_ricetta);
 
     if (eliminata)
-        printf("rimossa");
+        printf("rimossa\n");
     else
-        printf("non presente");
+        printf("non presente\n");
 }
 
 // --- FUNZIONI INGREDIENTI ---
@@ -484,7 +528,6 @@ struct Lotto *lista_lotti_creazione_nodo(char nome[], int qta) {
     x->qta_totale = qta;
     strcpy(x->nome, nome);
     return x;
-
 }
 struct Lotto* lista_lotti_insert(struct Lista_Lotti *lotti, struct Lotto *x) {
     struct Lotto* nodo = lotti->head;
@@ -662,7 +705,7 @@ void rifornimento(struct Lista_Lotti* lotti_hashTable[], struct Lista_Ordini_Att
         memset(nome_ingrediente, 0, sizeof(nome_ingrediente));
     }
 
-    printf("rifornito");
+    printf("rifornito\n");
 }
 
 
@@ -704,6 +747,58 @@ void albero_ordini_insert(struct Albero_Ordini *ordini_albero, struct Ordine *x)
 
     ordini_albero->size += 1;
 }
+struct Ordine* albero_ordini_min(struct Ordine* root) {
+    struct Ordine* foglia = root;
+
+    while (foglia->left)
+        foglia = foglia->left;
+
+    return foglia;
+}
+struct Ordine* albero_ordini_successor(struct Ordine* x) {
+    struct Ordine* y;
+
+    if (x->right != NULL)
+        return albero_ordini_min(x->right);
+    y = x->padre;
+    
+    while(y != NULL && x == y->right) {
+        x = y;
+        y = y->padre;
+    }
+
+    return y;
+}
+void albero_ordini_delete(struct Albero_Ordini *ordini_albero, struct Ordine *ordine) {
+    struct Ordine *x, *y;
+
+    if (ordine->left == NULL || ordine->right == NULL)
+        y = ordine;
+    else
+        y = albero_ordini_successor(ordine);
+    
+    if (y->left == NULL)
+        x = y->left;
+    else
+        x = y->right;
+    
+    if (x != NULL)
+        x->padre = y->padre;
+    if (y->padre == NULL)
+        ordini_albero->root = x;
+    else if (y == y->padre->left)
+        y->padre->left = x;
+    else
+        y->padre->right = x;
+    
+    if (y != ordine) {
+        swap(&ordine->data, &y->data);
+        swap(&ordine->n_elementi, &y->n_elementi);
+        y->ricetta = ordine->ricetta;
+    }
+
+    free(ordine);
+}
 
 // --- Gestione Ordine ---
 // ordine <nome_ricetta> <numero_elementi_ordinati>
@@ -731,11 +826,11 @@ void aggiunta_ordine(struct Albero_Ordini *ordini_albero, struct Lista_Ricette *
             albero_ordini_insert(ordini_albero, ordine);
         }
 
-        printf("accettato");
+        printf("accettato\n");
         return;
     }
 
-    printf("rifiutato");
+    printf("rifiutato\n");
 }
 // 33
 int ordine_controllo_attesa(struct Lista_Lotti *lotti_hashTable[], struct Ricetta* ricetta, int n_elementi) {
@@ -824,6 +919,8 @@ void controllo_ordini_attesa(struct Lista_Lotti *lotti_hashTable[], struct Lista
 
             ordine = albero_ordini_creazione_foglia(ordine_attesa->ricetta, ordine->n_elementi, ordine->data);
             albero_ordini_insert(ordini_albero, ordine);
+
+            lista_ordini_attesa_delete(ordini_attesa_lista, ordine_attesa);
         }
         ordine_attesa = ordine_attesa->next;
     }
@@ -855,4 +952,88 @@ struct Ordine_Attesa* lista_ordini_attesa_search(struct Lista_Ordini_Attesa* ord
         nodo = nodo->next;
     
     return nodo;
+}
+void lista_ordini_attesa_delete(struct Lista_Ordini_Attesa* ordini_attesa, struct Ordine_Attesa *x) {
+    if (x != ordini_attesa->head)
+        x->prev->next = x->next;
+    else
+        ordini_attesa->head = x->next;
+    if (x->next)
+        x->next->prev = x->prev;
+    ordini_attesa->size -=1;
+    free(x);
+}
+
+// EVASIONE ORDINI
+// --- Albero Evasione Ordini ---
+struct Ordine_Corriere* albero_ordini_corriere_creazione_foglia(struct Ricetta *ricetta, int n_elementi, int data) {
+    struct Ordine_Corriere* x = calloc(1, sizeof(struct Ordine_Corriere));
+    if (x == NULL)
+        print_error();
+    
+    x->data = data;
+    x->n_elementi = n_elementi;
+    x->ricetta = ricetta;
+
+    return x;
+}
+void albero_ordini_corriere_insert(struct Albero_Ordini_Corriere *ordini_corriere_albero, struct Ordine_Corriere *x) {
+    struct Ordine_Corriere* foglia = ordini_corriere_albero->root;
+    struct Ordine_Corriere* y;
+
+    if (foglia) {
+        while(foglia) {
+            y = foglia;
+            if (x->data < foglia->data)
+                foglia = foglia->left;
+            else
+                foglia = foglia->right;
+        }
+        x->padre = y;
+
+        if (x->data < y->data)
+            y->left = x;
+        else
+            y->right = x;
+
+    } else {
+        ordini_corriere_albero->root = x;
+    }
+
+    ordini_corriere_albero->size += 1;
+}
+
+// --- Gestione Evasione Ordini ---
+void evasione_ordini(struct Albero_Ordini* ordini) {
+    struct Albero_Ordini_Corriere* ordini_corriere;
+    struct Ordine* ordine;
+    struct Ordine_Corriere* ordine_corriere;
+    int peso_caricato = 0;
+
+    if (ordini->size == 0) {
+        printf("camioncino vuoto\n");
+        return;
+    }
+
+    ordini_corriere = (struct Albero_Ordini_Corriere *) calloc(1, sizeof(struct Albero_Ordini_Corriere));
+    if (ordini_corriere == NULL) {
+        print_error();
+        return;
+    }
+
+    do {
+        ordine = albero_ordini_min(ordini->root);
+
+        if (ordine && peso_caricato - ordine->ricetta->peso >= 0) {
+            ordine_corriere = albero_ordini_corriere_creazione_foglia(ordine->ricetta, ordine->data, ordine->n_elementi);
+            albero_ordini_corriere_insert(ordini_corriere, ordine_corriere);
+            peso_caricato += ordine->ricetta->peso;
+
+            albero_ordini_delete(ordini, ordine);
+        }
+    } while(ordine && peso_caricato - ordine->ricetta->peso >= 0);
+
+    print_corriere(ordini_corriere);
+
+    free_ordini_corriere(ordini_corriere);
 }
