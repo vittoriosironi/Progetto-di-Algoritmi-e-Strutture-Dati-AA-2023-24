@@ -165,7 +165,7 @@ void free_albero_ordini_corriere(struct Ordine_Corriere* ordine);
 
 int main() {
     // FILE * retIn = freopen("./Casi-Test/test.txt", "r", stdin);
-    FILE * retIn = freopen("./../test_cases_pubblici/open1.txt", "r", stdin);
+    FILE * retIn = freopen("./../test_cases_pubblici/open4.txt", "r", stdin);
     FILE * retOut = freopen("./out.txt", "w", stdout);
 
     if(retIn == NULL || retOut == NULL)
@@ -190,9 +190,10 @@ int main() {
     for(tempo = 0; pass != -1; tempo++) {
         pass = scanf("%s", input);
 
-        if (pass != -1) {
-            if (tempo % PERIODO_CORRIERE == 0 && tempo != 0)
+        if (tempo % PERIODO_CORRIERE == 0 && tempo != 0)
                 evasione_ordini(ordini_albero);
+
+        if (pass != -1) {
 
             if (!strcmp(input, AGGIUNGI_RICETTA)) {
                 aggiunta_ricetta(ricette_hashTable);
@@ -220,11 +221,11 @@ void print_corriere(struct Albero_Ordini_Corriere* ordini_corriere) {
     return print_corriere_foglia(ordini_corriere->root);
 }
 void print_corriere_foglia(struct Ordine_Corriere* ordine) {
-    if (ordine)
+    if (ordine == NULL)
         return;
-    print_corriere_foglia(ordine->left);
-    printf("%d %s %d\n", ordine->data, ordine->ricetta->nome, ordine->n_elementi);
     print_corriere_foglia(ordine->right);
+    printf("%d %s %d\n", ordine->data, ordine->ricetta->nome, ordine->n_elementi);
+    print_corriere_foglia(ordine->left);
 }
 int inizializzazione_memoria(struct Lista_Ricette *ricette_hashTable[], struct Lista_Lotti *lotti_hashTable[], struct Albero_Ordini **ordini_albero, struct Lista_Ordini_Attesa **ordini_attesa_lista) {
     for (int i = 0; i < M_HASH_TABLE_RICETTE; i++) {
@@ -344,7 +345,7 @@ void free_albero_ordini_corriere(struct Ordine_Corriere* ordine) {
         return;
     free_albero_ordini_corriere(ordine->left);
     free_albero_ordini_corriere(ordine->right);
-    free_albero_ordini_corriere(ordine);
+    free(ordine);
 }
 
 
@@ -407,6 +408,10 @@ int lista_ricetta_delete(struct Lista_Ricette* ricette, char nome[]) {
             nodo->next->prev = nodo->prev;
         
         ricette->size -= 1;
+
+        if (!ricette->head)
+            ricette->tail = NULL;
+
         free(nodo);
         return 1;
     }
@@ -567,6 +572,9 @@ void lista_lotti_delete(struct Lista_Lotti* lotti, struct Lotto *x) {
         lotti->head = x->next;
     if (x->next)
         x->next->prev = x->prev;
+    
+    if (!lotti->head)
+        lotti->tail = NULL;
     lotti->size -=1;
     free(x);
 }
@@ -637,7 +645,7 @@ void albero_lotti_delete(struct Lista_Lotti *lista_lotti, struct Lotto* lotto, s
     else
         y = albero_lotti_successor(sub_lotto);
     
-    if (y->left == NULL)
+    if (y->left != NULL)
         x = y->left;
     else
         x = y->right;
@@ -777,7 +785,7 @@ void albero_ordini_delete(struct Albero_Ordini *ordini_albero, struct Ordine *or
     else
         y = albero_ordini_successor(ordine);
     
-    if (y->left == NULL)
+    if (y->left != NULL)
         x = y->left;
     else
         x = y->right;
@@ -797,6 +805,7 @@ void albero_ordini_delete(struct Albero_Ordini *ordini_albero, struct Ordine *or
         y->ricetta = ordine->ricetta;
     }
 
+    ordini_albero->size -= 1;
     free(ordine);
 }
 
@@ -889,7 +898,7 @@ void ordine_utilizzo_ingredienti(struct Lista_Lotti *lotti_hashTable[], struct R
         lista_lotto = lotti_hashTable[hash];
         lotto = lista_lotti_search(lista_lotto, ingrediente->nome);
 
-        while(lotto && qta_rimanente > 0) {
+        while(lotto && lotto->sub_lotti && qta_rimanente > 0) {
             sub_lotto = albero_lotti_min(lotto->sub_lotti->root);
 
             if (sub_lotto->qta - qta_rimanente > 0) {
@@ -898,6 +907,7 @@ void ordine_utilizzo_ingredienti(struct Lista_Lotti *lotti_hashTable[], struct R
             } else {
                 qta_rimanente -= sub_lotto->qta;
                 albero_lotti_delete(lista_lotto, lotto, sub_lotto);
+                break;
             }
         }
 
@@ -917,7 +927,7 @@ void controllo_ordini_attesa(struct Lista_Lotti *lotti_hashTable[], struct Lista
         if (!attesa) {
             ordine_utilizzo_ingredienti(lotti_hashTable, ordine_attesa->ricetta, ordine_attesa->n_elementi);
 
-            ordine = albero_ordini_creazione_foglia(ordine_attesa->ricetta, ordine->n_elementi, ordine->data);
+            ordine = albero_ordini_creazione_foglia(ordine_attesa->ricetta, ordine_attesa->n_elementi, ordine_attesa->data);
             albero_ordini_insert(ordini_albero, ordine);
 
             lista_ordini_attesa_delete(ordini_attesa_lista, ordine_attesa);
@@ -960,6 +970,9 @@ void lista_ordini_attesa_delete(struct Lista_Ordini_Attesa* ordini_attesa, struc
         ordini_attesa->head = x->next;
     if (x->next)
         x->next->prev = x->prev;
+    
+    if (!ordini_attesa->head)
+        ordini_attesa->tail = NULL;
     ordini_attesa->size -=1;
     free(x);
 }
@@ -980,22 +993,40 @@ struct Ordine_Corriere* albero_ordini_corriere_creazione_foglia(struct Ricetta *
 void albero_ordini_corriere_insert(struct Albero_Ordini_Corriere *ordini_corriere_albero, struct Ordine_Corriere *x) {
     struct Ordine_Corriere* foglia = ordini_corriere_albero->root;
     struct Ordine_Corriere* y;
+    int peso_attuale, peso_y;
+    int nuovo_peso = x->ricetta->peso * x->n_elementi;
 
     if (foglia) {
         while(foglia) {
+            peso_attuale = foglia->ricetta->peso * foglia->n_elementi;
             y = foglia;
-            if (x->data < foglia->data)
+
+            if (nuovo_peso < peso_attuale)
                 foglia = foglia->left;
-            else
+            else if (nuovo_peso > peso_attuale)
                 foglia = foglia->right;
+            else {
+                if (x->data > foglia->data)
+                    foglia = foglia->left;
+                else
+                    foglia = foglia->right;
+            }
         }
         x->padre = y;
 
-        if (x->data < y->data)
-            y->left = x;
-        else
-            y->right = x;
+        nuovo_peso = x->ricetta->peso * x->n_elementi;
+        peso_y = y->ricetta->peso * y->n_elementi;
 
+        if (nuovo_peso < peso_y)
+            y->left = x;
+        else if (nuovo_peso > peso_y)
+            y->right = x;
+        else {
+            if (x->data > y->data)
+                y->left = x;
+            else
+                y->right = x;
+        }
     } else {
         ordini_corriere_albero->root = x;
     }
@@ -1021,17 +1052,20 @@ void evasione_ordini(struct Albero_Ordini* ordini) {
         return;
     }
 
-    do {
-        ordine = albero_ordini_min(ordini->root);
 
-        if (ordine && peso_caricato - ordine->ricetta->peso >= 0) {
-            ordine_corriere = albero_ordini_corriere_creazione_foglia(ordine->ricetta, ordine->data, ordine->n_elementi);
+    ordine = albero_ordini_min(ordini->root);
+    do {
+        if (ordine && ordine->ricetta && CAPIENZA_CORRIERE - (peso_caricato + ordine->ricetta->peso) >= 0) {
+            ordine_corriere = albero_ordini_corriere_creazione_foglia(ordine->ricetta, ordine->n_elementi, ordine->data);
             albero_ordini_corriere_insert(ordini_corriere, ordine_corriere);
-            peso_caricato += ordine->ricetta->peso;
+            peso_caricato += ordine->ricetta->peso * ordine->n_elementi;
 
             albero_ordini_delete(ordini, ordine);
         }
-    } while(ordine && peso_caricato - ordine->ricetta->peso >= 0);
+
+        if (ordini->root)
+            ordine = albero_ordini_min(ordini->root);
+    } while(ordine && ordine->ricetta && CAPIENZA_CORRIERE - (peso_caricato + ordine->ricetta->peso) >= 0);
 
     print_corriere(ordini_corriere);
 
