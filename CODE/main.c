@@ -16,13 +16,12 @@ int PERIODO_CORRIERE, CAPIENZA_CORRIERE;
 // STRUTTURE
 // --- Ingredienti Lista ---
 struct Ingrediente {
-    struct Ingrediente *prev, *next;
+    struct Ingrediente *next;
     struct Lotto *lotto;
     int qta;
 };
 struct Lista_Ingredienti {
     struct Ingrediente *head;
-    struct Ingrediente *tail;
 };
 
 // --- Ricetta Hash Table ---
@@ -47,14 +46,13 @@ struct Albero_Lotti {
     struct Foglia_Lotto *min;
 };
 struct Lotto {
-    struct Lotto *prev, *next;
+    struct Lotto *next;
     char *nome;
     int qta_totale;
     struct Albero_Lotti *sub_lotti;
 };
 struct Lista_Lotti {
     struct Lotto *head;
-    struct Lotto *tail;
 };
 
 // --- Ordini albero ---
@@ -109,7 +107,6 @@ void lista_ingredienti_delete(struct Lista_Ingredienti **ingredienti);
 struct Lotto* lista_lotti_insert(struct Lista_Lotti *lotti, struct Lotto* x);
 struct Lotto* lista_lotti_creazione_nodo(char nome[], int qta);
 struct Lotto* lista_lotti_search(struct Lista_Lotti* lista_lotto, char nome[]);
-void lista_lotti_delete(struct Lista_Lotti* lotti, struct Lotto *x);
 struct Foglia_Lotto* albero_lotti_creazione_foglia(int qta, int scadenza);
 struct Foglia_Lotto* albero_lotti_min(struct Foglia_Lotto* root);
 struct Foglia_Lotto* albero_lotti_successor(struct Foglia_Lotto* x);
@@ -163,11 +160,11 @@ void free_albero_ordini_corriere(struct Ordine_Corriere **ordine);
 
 
 int main() {
-    /*FILE * retIn = freopen("./../test_cases_pubblici/open10.txt", "r", stdin);
+    FILE * retIn = freopen("./../test_cases_pubblici/open10.txt", "r", stdin);
     FILE * retOut = freopen("./out.txt", "w", stdout);
 
     if(retIn == NULL || retOut == NULL)
-        return 1;*/
+        return 1;
 
     struct Lista_Ricette *ricette_hashTable[M_HASH_TABLE_RICETTE];
     struct Lista_Lotti *lotti_hashTable[M_HASH_TABLE_LOTTI];
@@ -455,8 +452,7 @@ void aggiunta_ricetta(struct Lista_Ricette *ricette_hashTable[], struct Lista_Lo
 
     ricetta->peso = 0;
     while(controllo != '\n') {
-        if (scanf("%s", nome_ingrediente)) {}
-        if (scanf("%d", &qta)) {}
+        if (scanf("%s %d", nome_ingrediente, &qta)) {}
 
         hash = hashing(nome_ingrediente, M_HASH_TABLE_LOTTI);
         lista_lotto = lotti_hashTable[hash];
@@ -473,7 +469,7 @@ void aggiunta_ricetta(struct Lista_Ricette *ricette_hashTable[], struct Lista_Lo
         lista_ingredienti_insert(lista_ingredienti, ingrediente);
         ricetta->peso += ingrediente->qta;
 
-        if(scanf("%c", &controllo)) {}
+        controllo = getchar();
         memset(nome_ingrediente, 0, sizeof(nome_ingrediente));
     }
 
@@ -528,11 +524,7 @@ struct Ingrediente* lista_ingredienti_creazione_nodo(struct Lotto* lotto, int qt
 
 void lista_ingredienti_insert(struct Lista_Ingredienti *ingredienti, struct Ingrediente *x) {
     x->next = ingredienti->head;
-    if (ingredienti->head)
-        ingredienti->head->prev = x;
     ingredienti->head = x;
-    if (ingredienti->tail == NULL)
-        ingredienti->tail = x;
 }
 void lista_ingredienti_delete(struct Lista_Ingredienti **ingredienti) {
     struct Ingrediente* ingrediente = (*ingredienti)->head, *ingrediente_tmp;
@@ -565,18 +557,16 @@ struct Lotto* lista_lotti_insert(struct Lista_Lotti *lotti, struct Lotto *x) {
     if (nodo) {
         while(nodo->next && strcmp(nodo->nome, x->nome))
             nodo = nodo->next;
+
         if(!strcmp(nodo->nome, x->nome)) {
             nodo->qta_totale += x->qta_totale;
             return nodo;
         }
 
         nodo->next = x;
-        x->prev = nodo;
-        lotti->tail = x;
-    } else {
+    } else
         lotti->head = x;
-        lotti->tail = x;
-    }
+
 
     return NULL;
 }
@@ -587,21 +577,6 @@ struct Lotto* lista_lotti_search(struct Lista_Lotti* lotti, char nome[]) {
         nodo = nodo->next;
 
     return nodo;
-}
-void lista_lotti_delete(struct Lista_Lotti* lotti, struct Lotto *x) {
-    if (x != lotti->head)
-        x->prev->next = x->next;
-    else
-        lotti->head = x->next;
-    
-    if (x != lotti->tail)
-        x->next->prev = x->prev;
-    else
-        lotti->tail = x->prev;
-    
-    if (!lotti->head)
-        lotti->tail = NULL;
-    free(x->nome);
 }
 
 // --- Albero Lotti ---
@@ -708,9 +683,7 @@ void rifornimento(struct Lista_Lotti* lotti_hashTable[], struct Lista_Ordini_Att
     struct Foglia_Lotto* sub_lotto;
 
     while(controllo != '\n') {
-        if (scanf("%s", nome_ingrediente)) {}
-        if (scanf("%d", &qta)) {}
-        if (scanf("%d", &scadenza)) {}
+        if (scanf("%s %d %d", nome_ingrediente, &qta, &scadenza)) {}
 
         if (tempo < scadenza) {
             hash = hashing(nome_ingrediente, M_HASH_TABLE_LOTTI);
@@ -734,7 +707,7 @@ void rifornimento(struct Lista_Lotti* lotti_hashTable[], struct Lista_Ordini_Att
             albero_lotti_insert((lotto_doppione ? lotto_doppione->sub_lotti : lotto->sub_lotti), sub_lotto);
         }
 
-        if(scanf("%c", &controllo)) {}
+        controllo = getchar();
         memset(nome_ingrediente, 0, sizeof(nome_ingrediente));
     }
 
@@ -857,8 +830,7 @@ void aggiunta_ordine(struct Albero_Ordini *ordini_albero, struct Lista_Ricette *
     struct Lista_Ricette* lista_ricetta;
     struct Ricetta* ricetta;
 
-    if (scanf("%s", nome_ricetta)) {}
-    if (scanf("%d", &n_elementi)) {}
+    if (scanf("%s %d", nome_ricetta, &n_elementi)) {}
 
     hash = hashing(nome_ricetta, M_HASH_TABLE_RICETTE);
     lista_ricetta = ricette_hashTable[hash];
@@ -906,11 +878,15 @@ int ordine_controllo_attesa(struct Ricetta* ricetta, int n_elementi, int tempo) 
         lotto = ingrediente->lotto;
         qta_necessaria = ingrediente->qta * n_elementi;
 
+        if (lotto->qta_totale < qta_necessaria)
+            return 1;
+
         if (lotto->sub_lotti != NULL)
             ricalcolo_qta_totale(lotto, tempo);
 
         if (lotto->sub_lotti == NULL || lotto->qta_totale < qta_necessaria)
             return 1;
+
         ingrediente = ingrediente->next;
     }
 
