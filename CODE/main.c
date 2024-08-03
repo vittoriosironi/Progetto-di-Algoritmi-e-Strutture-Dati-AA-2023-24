@@ -123,6 +123,7 @@ int albero_ordini_search(struct Ordine *ordine, char ricetta[]);
 void aggiunta_ordine(struct Albero_Ordini *ordini_albero, struct Lista_Ricette *ricette_hashTable[], struct Lista_Ordini_Attesa* ordini_attesa_lista, int tempo);
 int ordine_controllo_attesa(struct Ricetta* ricetta, int n_elementi, int tempo);
 void ricalcolo_qta_totale(struct Lotto* lotto, int tempo);
+void controllo_ordini_scaduti(struct Lista_Lotti* lotti_hashTable[], int tempo);
 int preparazione_ordine(struct Lista_Ordini_Attesa *ordini_attesa_lista, struct Ricetta* ricetta, int n_elementi, int tempo);
 void ordine_utilizzo_ingredienti(struct Ricetta* ricetta, int n_elementi, int tempo);
 
@@ -183,6 +184,8 @@ int main() {
     if(scanf("%d %d", &PERIODO_CORRIERE, &CAPIENZA_CORRIERE)) {}
 
     for(tempo = 0; pass != -1; tempo++) {
+        if (tempo != 0)
+            controllo_ordini_scaduti(lotti_hashTable, tempo);
         pass = scanf("%s", input);
 
         if (tempo % PERIODO_CORRIERE == 0 && tempo != 0)
@@ -868,6 +871,19 @@ void ricalcolo_qta_totale(struct Lotto* lotto, int tempo) {
 
 }
 
+void controllo_ordini_scaduti(struct Lista_Lotti* lotti_hashTable[], int tempo) {
+    struct Lotto* lotto = NULL;
+
+    for (int i = 0; i < M_HASH_TABLE_LOTTI; i++) {
+        lotto = lotti_hashTable[i]->head;
+
+        while(lotto) {
+            if (lotto->sub_lotti)
+                ricalcolo_qta_totale(lotto, tempo);
+            lotto = lotto->next;
+        }
+    }
+}
 
 int ordine_controllo_attesa(struct Ricetta* ricetta, int n_elementi, int tempo) {
     int qta_necessaria;
@@ -877,12 +893,6 @@ int ordine_controllo_attesa(struct Ricetta* ricetta, int n_elementi, int tempo) 
     while(ingrediente) {
         lotto = ingrediente->lotto;
         qta_necessaria = ingrediente->qta * n_elementi;
-
-        if (lotto->qta_totale < qta_necessaria)
-            return 1;
-
-        if (lotto->sub_lotti != NULL)
-            ricalcolo_qta_totale(lotto, tempo);
 
         if (lotto->sub_lotti == NULL || lotto->qta_totale < qta_necessaria)
             return 1;
