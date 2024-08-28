@@ -161,8 +161,8 @@ void free_ordini_corriere(struct Albero_Ordini_Corriere **ordini_corriere);
 void free_albero_ordini_corriere(struct Ordine_Corriere **ordine);
 
 
-int main() {
-    /*FILE * retIn = freopen("./../test_cases_pubblici/open9.txt", "r", stdin);
+int main() {/*
+    FILE * retIn = freopen("./../test_cases_pubblici/open11.txt", "r", stdin);
     FILE * retOut = freopen("./out.txt", "w", stdout);
 
     if(retIn == NULL || retOut == NULL)
@@ -382,25 +382,6 @@ void lista_ricette_insert(struct Lista_Ricette *ricette, struct Ricetta* x) {
     ricette->head = x;
 }
 
-/*
-int lista_ricette_insert(struct Lista_Ricette *ricette, struct Ricetta* x) {
-    struct Ricetta* nodo = ricette->head;
-
-    if (nodo) {
-        while(nodo->next && strcmp(nodo->nome, x->nome))
-            nodo = nodo->next;
-        if(!strcmp(nodo->nome, x->nome))
-            return 1;
-
-        nodo->next = x;
-        x->prev = nodo;
-    } else {
-        ricette->head = x;
-    }
-
-    return 0;
-}*/
-
 int lista_ricetta_delete(struct Lista_Ricette* ricette, char nome[]) {
     struct Ricetta* nodo = ricette->head;
 
@@ -460,16 +441,6 @@ void aggiunta_ricetta(struct Lista_Ricette *ricette_hashTable[], struct Lista_Lo
     }
     ricetta = lista_ricette_creazione_nodo(nome_ricetta);
     lista_ricette_insert(lista_ricetta, ricetta);
-    /*
-    ricetta = lista_ricette_creazione_nodo(nome_ricetta);
-    doppione = lista_ricette_insert(lista_ricetta, ricetta);
-    if (doppione) {
-        free(ricetta);
-        ricetta = NULL;
-        leggi_fine_riga();
-        printf("ignorato\n");
-        return;
-    }*/
 
     ricetta->ingredienti = calloc(1, sizeof(struct Lista_Ingredienti));
     lista_ingredienti = ricetta->ingredienti;
@@ -486,15 +457,6 @@ void aggiunta_ricetta(struct Lista_Ricette *ricette_hashTable[], struct Lista_Lo
             lotto = lista_lotti_creazione_nodo(nome_ingrediente, 0);
             lista_lotti_insert(lista_lotto, lotto);
         }
-        /*
-        lotto = lista_lotti_creazione_nodo(nome_ingrediente, 0);
-        lotto_doppione = lista_lotti_insert(lista_lotto, lotto);
-        if (lotto_doppione) {
-            dealloca_stringa(&(lotto->nome));
-            free(lotto);
-            lotto = NULL;
-        }
-        */
     
         ingrediente = lista_ingredienti_creazione_nodo((lotto_doppione == NULL ? lotto : lotto_doppione), qta);
         lista_ingredienti_insert(lista_ingredienti, ingrediente);
@@ -582,26 +544,6 @@ struct Lotto *lista_lotti_creazione_nodo(char nome[],  int qta) {
 
     return x;
 }
-/*
-struct Lotto* lista_lotti_insert(struct Lista_Lotti *lotti, struct Lotto *x) {
-    struct Lotto* nodo = lotti->head;
-
-    if (nodo) {
-        while(nodo->next && strcmp(nodo->nome, x->nome))
-            nodo = nodo->next;
-
-        if(!strcmp(nodo->nome, x->nome)) {
-            nodo->qta_totale += x->qta_totale;
-            return nodo;
-        }
-
-        nodo->next = x;
-    } else
-        lotti->head = x;
-
-
-    return NULL;
-}*/
 void lista_lotti_insert(struct Lista_Lotti *lotti, struct Lotto *x) {
     x->next = lotti->head;
     lotti->head = x;
@@ -737,21 +679,6 @@ void rifornimento(struct Lista_Lotti* lotti_hashTable[], struct Lista_Ordini_Att
                 if (lotto->sub_lotti == NULL)
                     print_error();
             }
-/*
-            lotto = lista_lotti_creazione_nodo(nome_ingrediente, qta);
-            lotto_doppione = lista_lotti_insert(lista_lotto, lotto);
-            if (lotto_doppione) {
-                free(lotto);
-                lotto = NULL;
-
-                if (lotto_doppione->sub_lotti == NULL)
-                    lotto_doppione->sub_lotti = calloc(1, sizeof(struct Albero_Lotti));
-            } else {
-                lotto->sub_lotti = calloc(1, sizeof(struct Albero_Lotti));
-                if (lotto->sub_lotti == NULL)
-                    print_error();
-            }
-*/
 
             sub_lotto = albero_lotti_creazione_foglia(qta, scadenza);
             albero_lotti_insert((lotto_doppione ? lotto_doppione->sub_lotti : lotto->sub_lotti), sub_lotto);
