@@ -140,12 +140,10 @@ void evasione_ordini(struct Albero_Ordini* ordini);
 
 
 // --- UTILITIES ---
-void print_error();
 void print_corriere(struct Albero_Ordini_Corriere* ordini_corriere);
 void print_corriere_foglia(struct Ordine_Corriere* ordine);
-char* alloca_stringa(char stringa[MAX_LENGTH]);
 void dealloca_stringa(char **stringa);
-int inizializzazione_memoria(struct Lista_Ricette *ricette_hashTable[], struct Lista_Lotti *lotti_hashTable[], struct Albero_Ordini **ordini_albero, struct Lista_Ordini_Attesa **ordini_attesa_lista);
+void inizializzazione_memoria(struct Lista_Ricette *ricette_hashTable[], struct Lista_Lotti *lotti_hashTable[], struct Albero_Ordini **ordini_albero, struct Lista_Ordini_Attesa **ordini_attesa_lista);
 float decimal(float num);
 void swap (int *x, int *y);
 
@@ -161,34 +159,27 @@ void free_ordini_corriere(struct Albero_Ordini_Corriere **ordini_corriere);
 void free_albero_ordini_corriere(struct Ordine_Corriere **ordine);
 
 
-int main() {/*
-    FILE * retIn = freopen("./../test_cases_pubblici/open11.txt", "r", stdin);
+int main() {
+    FILE * retIn = freopen("./../test_cases_pubblici/open9.txt", "r", stdin);
     FILE * retOut = freopen("./out.txt", "w", stdout);
 
     if(retIn == NULL || retOut == NULL)
-        return 1;*/
+        return 1;
 
     struct Lista_Ricette *ricette_hashTable[M_HASH_TABLE_RICETTE];
     struct Lista_Lotti *lotti_hashTable[M_HASH_TABLE_LOTTI];
     struct Albero_Ordini *ordini_albero;
     struct Lista_Ordini_Attesa *ordini_attesa_lista;
 
-    int pass = 1, tempo = 0, error = 0;
+    int pass = 1, tempo = 0;
     char input[MAX_LENGTH];
 
-    error = inizializzazione_memoria(ricette_hashTable, lotti_hashTable, &ordini_albero, &ordini_attesa_lista);
-    if (error) {
-        print_error();
-        return 1;
-    }
+    inizializzazione_memoria(ricette_hashTable, lotti_hashTable, &ordini_albero, &ordini_attesa_lista);
 
     if(scanf("%d %d", &PERIODO_CORRIERE, &CAPIENZA_CORRIERE)) {}
 
     for(tempo = 0; pass != -1; tempo++) {
-        if (tempo != 0)
-            controllo_ordini_scaduti(lotti_hashTable, tempo);
         pass = scanf("%s", input);
-
         if (tempo % PERIODO_CORRIERE == 0 && tempo != 0)
             evasione_ordini(ordini_albero);
 
@@ -198,8 +189,12 @@ int main() {/*
             } else if (!strcmp(input, RIMUOVI_RICETTA)) {
                 rimozione_ricetta(ricette_hashTable, ordini_attesa_lista, ordini_albero);
             } else if (!strcmp(input, RIFORNIMENTO)) {
+                if (tempo != 0)
+                    controllo_ordini_scaduti(lotti_hashTable, tempo);
                 rifornimento(lotti_hashTable, ordini_attesa_lista, ordini_albero, tempo);
             } else if (!strcmp(input, ORDINE)) {
+                if (tempo != 0)
+                    controllo_ordini_scaduti(lotti_hashTable, tempo);
                 aggiunta_ordine(ordini_albero, ricette_hashTable, ordini_attesa_lista, tempo);
             } else { tempo--; }
         }
@@ -214,7 +209,6 @@ int main() {/*
 
 
 // --- UTILITIES ---
-void print_error() { printf("ERROR\n"); }
 void print_corriere(struct Albero_Ordini_Corriere* ordini_corriere) {
     return print_corriere_foglia(ordini_corriere->root);
 }
@@ -225,34 +219,28 @@ void print_corriere_foglia(struct Ordine_Corriere* ordine) {
     printf("%d %s %d\n", ordine->data, ordine->ricetta->nome, ordine->n_elementi);
     print_corriere_foglia(ordine->left);
 }
-char* alloca_stringa(char stringa[MAX_LENGTH]) {
-    char *out = malloc(strlen(stringa) * sizeof(char) + 1);
-    strcpy(out, stringa);
-    return out;
-}
 void dealloca_stringa(char **stringa) { free(*stringa); }
-int inizializzazione_memoria(struct Lista_Ricette *ricette_hashTable[], struct Lista_Lotti *lotti_hashTable[], struct Albero_Ordini **ordini_albero, struct Lista_Ordini_Attesa **ordini_attesa_lista) {
+void inizializzazione_memoria(struct Lista_Ricette *ricette_hashTable[], struct Lista_Lotti *lotti_hashTable[], struct Albero_Ordini **ordini_albero, struct Lista_Ordini_Attesa **ordini_attesa_lista) {
     for (int i = 0; i < M_HASH_TABLE_RICETTE; i++) {
         ricette_hashTable[i] = (struct Lista_Ricette *)calloc(1, sizeof(struct Lista_Ricette));
         if (ricette_hashTable[i] == NULL)
-            return 1;
+            return;
     }
 
     for (int i = 0; i < M_HASH_TABLE_LOTTI; i++) {
         lotti_hashTable[i] = (struct Lista_Lotti *)calloc(1, sizeof(struct Lista_Lotti));
         if (lotti_hashTable[i] == NULL)
-            return 1;
+            return;
     }
 
     *ordini_albero = (struct Albero_Ordini *) calloc(1, sizeof(struct Albero_Ordini));
     if (*ordini_albero == NULL)
-        return 1;
+        return;
     
     *ordini_attesa_lista = (struct Lista_Ordini_Attesa *) calloc(1, sizeof(struct Lista_Ordini_Attesa));
     if (*ordini_attesa_lista == NULL)
-        return 1;
+        return;
 
-    return 0;
 }
 float decimal(float num) { return num - (int) num; }
 void leggi_fine_riga() {
@@ -367,8 +355,6 @@ unsigned int hashing(const char *str, int dim) {
 // --- Lista Ricette ---
 struct Ricetta* lista_ricette_creazione_nodo(char nome[]) {
     struct Ricetta* x = calloc(1, sizeof(struct Ricetta));
-    if (x == NULL)
-        print_error();
 
     x->nome = malloc(strlen(nome) * sizeof(char) + 1);
     strcpy(x->nome, nome);
@@ -506,8 +492,6 @@ void rimozione_ricetta(struct Lista_Ricette *ricette_hashTable[], struct Lista_O
 
 struct Ingrediente* lista_ingredienti_creazione_nodo(struct Lotto* lotto, int qta) {
     struct Ingrediente *x = calloc(1, sizeof(struct Ingrediente));
-    if (x == NULL)
-        print_error();
 
     x->lotto = lotto;
     x->qta = qta;
@@ -535,8 +519,6 @@ void lista_ingredienti_delete(struct Lista_Ingredienti **ingredienti) {
 // --- Lista Lotti ---
 struct Lotto *lista_lotti_creazione_nodo(char nome[],  int qta) {
     struct Lotto* x = calloc(1, sizeof(struct Lotto));
-    if (x == NULL)
-        print_error();
 
     x->nome = malloc(strlen(nome) * sizeof(char) + 1);
     strcpy(x->nome, nome);
@@ -560,8 +542,6 @@ struct Lotto* lista_lotti_search(struct Lista_Lotti* lotti, char nome[]) {
 // --- Albero Lotti ---
 struct Foglia_Lotto* albero_lotti_creazione_foglia(int qta, int scadenza) {
     struct Foglia_Lotto* x = calloc(1, sizeof(struct Foglia_Lotto));
-    if (x == NULL)
-        print_error();
 
     x->qta = qta;
     x->scadenza = scadenza;
@@ -676,8 +656,6 @@ void rifornimento(struct Lista_Lotti* lotti_hashTable[], struct Lista_Ordini_Att
                 lotto = lista_lotti_creazione_nodo(nome_ingrediente, qta);
                 lista_lotti_insert(lista_lotto, lotto);
                 lotto->sub_lotti = calloc(1, sizeof(struct Albero_Lotti));
-                if (lotto->sub_lotti == NULL)
-                    print_error();
             }
 
             sub_lotto = albero_lotti_creazione_foglia(qta, scadenza);
@@ -698,8 +676,6 @@ void rifornimento(struct Lista_Lotti* lotti_hashTable[], struct Lista_Ordini_Att
 // --- Albero Ordini ---
 struct Ordine* albero_ordini_creazione_foglia(struct Ricetta *ricetta, int n_elementi, int data) {
     struct Ordine* x = calloc(1, sizeof(struct Ordine));
-    if (x == NULL)
-        print_error();
     
     x->data = data;
     x->n_elementi = n_elementi;
@@ -968,8 +944,6 @@ void lista_ordini_attesa_insert(struct Lista_Ordini_Attesa* ordine_attesa_lista,
 }
 struct Ordine_Attesa* lista_ordini_attesa_creazione_nodo(int n_elementi, int data, struct Ricetta* ricetta, struct Ingrediente* ingrediente_mancante) {
     struct Ordine_Attesa *x = calloc(1, sizeof(struct Ordine_Attesa));
-    if (x == NULL)
-        print_error();
 
     x->data = data;
     x->n_elementi = n_elementi;
@@ -1010,8 +984,6 @@ struct Ordine_Attesa* lista_ordini_attesa_delete(struct Lista_Ordini_Attesa* ord
 // --- Albero Evasione Ordini ---
 struct Ordine_Corriere* albero_ordini_corriere_creazione_foglia(struct Ricetta *ricetta, int n_elementi, int data) {
     struct Ordine_Corriere* x = calloc(1, sizeof(struct Ordine_Corriere));
-    if (x == NULL)
-        print_error();
 
     x->data = data;
     x->n_elementi = n_elementi;
@@ -1074,11 +1046,6 @@ void evasione_ordini(struct Albero_Ordini* ordini) {
     }
 
     ordini_corriere = (struct Albero_Ordini_Corriere *) calloc(1, sizeof(struct Albero_Ordini_Corriere));
-    if (ordini_corriere == NULL) {
-        print_error();
-        return;
-    }
-
     ordine = ordini->min;
     while(ordine && ordine->ricetta && CAPIENZA_CORRIERE - (peso_caricato + ordine->ricetta->peso * ordine->n_elementi) >= 0) {
         ordine_corriere = albero_ordini_corriere_creazione_foglia(ordine->ricetta, ordine->n_elementi, ordine->data);
