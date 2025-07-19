@@ -160,11 +160,6 @@ void free_albero_ordini_corriere(struct Ordine_Corriere **ordine);
 
 
 int main() {
-    FILE * retIn = freopen("./../test_cases_pubblici/open9.txt", "r", stdin);
-    FILE * retOut = freopen("./out.txt", "w", stdout);
-
-    if(retIn == NULL || retOut == NULL)
-        return 1;
 
     struct Lista_Ricette *ricette_hashTable[M_HASH_TABLE_RICETTE];
     struct Lista_Lotti *lotti_hashTable[M_HASH_TABLE_LOTTI];
@@ -180,6 +175,8 @@ int main() {
 
     for(tempo = 0; pass != -1; tempo++) {
         pass = scanf("%s", input);
+        if (tempo != 0)
+            controllo_ordini_scaduti(lotti_hashTable, tempo);
         if (tempo % PERIODO_CORRIERE == 0 && tempo != 0)
             evasione_ordini(ordini_albero);
 
@@ -189,12 +186,8 @@ int main() {
             } else if (!strcmp(input, RIMUOVI_RICETTA)) {
                 rimozione_ricetta(ricette_hashTable, ordini_attesa_lista, ordini_albero);
             } else if (!strcmp(input, RIFORNIMENTO)) {
-                if (tempo != 0)
-                    controllo_ordini_scaduti(lotti_hashTable, tempo);
                 rifornimento(lotti_hashTable, ordini_attesa_lista, ordini_albero, tempo);
             } else if (!strcmp(input, ORDINE)) {
-                if (tempo != 0)
-                    controllo_ordini_scaduti(lotti_hashTable, tempo);
                 aggiunta_ordine(ordini_albero, ricette_hashTable, ordini_attesa_lista, tempo);
             } else { tempo--; }
         }

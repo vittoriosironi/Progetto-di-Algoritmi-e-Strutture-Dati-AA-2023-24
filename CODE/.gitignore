@@ -1,0 +1,15 @@
+# File di profiling e debug
+callgrind.*
+massif.*
+
+# Eseguibili
+main
+a.out
+
+# File di output
+out.txt
+
+# Cartelle di debug e test
+main.dSYM/
+a.out.dSYM/
+Casi-Test/

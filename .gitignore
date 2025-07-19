@@ -1,21 +1,36 @@
-CODE/DA ELIMINARE.dSYM/Contents/Resources/DWARF/DA ELIMINARE
-CODE/DA ELIMINARE.dSYM/Contents/Resources/Relocations/aarch64/DA ELIMINARE.yml
-Testi/.DS_Store
-Testi/Ambiente di Sviluppo/.DS_Store
+# File di sistema
+.DS_Store
+.vscode/
+
+# File di profiling e debug
+CODE/callgrind.*
+CODE/massif.*
+
+# Eseguibili
+CODE/main
+CODE/a.out
+CODE/DA ELIMINARE
+a.out
+
+# File di output
+CODE/out.txt
+out.txt
+
+# Cartelle di debug
+CODE/main.dSYM/
+CODE/a.out.dSYM/
+CODE/DA ELIMINARE.dSYM/
+
+# Cartelle di test e strumenti
+CODE/Casi-Test/
+INSTRUMENTS/
+Generatore casi test/
+Codici-Prova/
+
+# Documentazione e materiali del corso
+Testi/
+
+# File di sviluppo temporanei
 Testi/Ambiente di Sviluppo/esempi/collezione_bug.c
 Testi/Ambiente di Sviluppo/esempi/simple.c
-CODE/DA ELIMINARE.dSYM/Contents/Info.plist
-CODE/DA ELIMINARE
-.vscode/tasks.json
-.DS_Store
-.vscode/launch.json
-CODE/main
-CODE/main.dSYM/Contents/Info.plist
-CODE/main.dSYM/Contents/Resources/DWARF/main
-CODE/main.dSYM/Contents/Resources/Relocations/aarch64/main.yml
 Testi/Ambiente di Sviluppo/esempi/Makefile
-CODE/out.txt
-CODE/a.out
-CODE/a.out.dSYM
-INSTRUMENTS
-CODE/out.txt
