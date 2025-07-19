@@ -4,11 +4,11 @@ _Corso di Algoritmi e Strutture Dati - Politecnico di Milano_
 
 ---
 
-## Descrizione
+## 📖 Descrizione
 
 Questo progetto simula la gestione di una pasticceria, ottimizzando la preparazione degli ordini, la gestione delle ricette, degli ingredienti e dei lotti. Sono state utilizzate strutture dati avanzate per garantire efficienza e scalabilità.
 
-## Funzionalità principali
+## 🔧 Funzionalità principali
 
 - Gestione ricette: aggiunta/rimozione ricette con ingredienti e quantità.
 - Gestione ingredienti: rifornimento, controllo scadenze e aggiornamento quantità.
@@ -16,7 +16,7 @@ Questo progetto simula la gestione di una pasticceria, ottimizzando la preparazi
 - Ottimizzazione: hash table, alberi binari di ricerca, liste doppiamente collegate.
 - Gestione scadenze: controllo automatico ingredienti scaduti.
 
-## Strutture dati utilizzate
+## 🗃️ Strutture dati utilizzate
 
 - Tabelle hash per ricette e ingredienti
 - Alberi binari di ricerca per ordini e lotti
@@ -26,7 +26,7 @@ Questo progetto simula la gestione di una pasticceria, ottimizzando la preparazi
 
 Il progetto è stato valutato attraverso un testbench privato che inietta un input nel file stdin e analizza l'output prodotto su stdout. Se tale output è corretto, viene valutata la durata dell'elaborazione e l'impiego massimo di memoria.
 
-### Risultati del testbench
+### 📊 Risultati del testbench
 
 | VOTO | TEMPO   | MEMORIA   |
 |------|---------|-----------|
@@ -42,20 +42,20 @@ Il progetto è stato valutato attraverso un testbench privato che inietta un inp
 
 L'ultima sottoposizione di questo file ha impiegato **1.514 s** per l'elaborazione e ha utilizzato **11.5 MiB** di memoria nel suo picco.
 
-## Compilazione ed esecuzione
+## 🛠️ Compilazione ed esecuzione
 
 ```bash
 gcc main.c -o main
 ./main < input.txt > out.txt
 ```
 
-## File principali
+## 📂 File principali
 
 - `main.c` — logica principale e strutture dati
 - `Specifica.pdf` — specifica del progetto
 - `Testbenches` — casi di test
 
-## Autore
+## ✍️ Autore
 
 **Vittorio Sironi**  
 Politecnico di Milano
@@ -70,11 +70,11 @@ _Algorithms and Data Structures Course - Politecnico di Milano_
 
 ---
 
-## Description
+## 📖 Description
 
 This project simulates the management of a pastry shop, optimizing order preparation, recipe, ingredient, and batch management. Advanced data structures are used to ensure efficiency and scalability.
 
-## Main Features
+## 🔧 Main Features
 
 - Recipe management: add/remove recipes with ingredients and quantities.
 - Ingredient management: restock, expiration control, quantity updates.
@@ -82,7 +82,7 @@ This project simulates the management of a pastry shop, optimizing order prepara
 - Optimization: hash tables, binary search trees, doubly linked lists.
 - Expiration management: automatic control of expired ingredients.
 
-## Data Structures Used
+## 🗃️ Data Structures Used
 
 - Hash tables for recipes and ingredients
 - Binary search trees for orders and batches
@@ -92,7 +92,7 @@ This project simulates the management of a pastry shop, optimizing order prepara
 
 The project was evaluated through a private testbench that injects input into the stdin file and analyzes the output produced on stdout. If the output is correct, the processing time and maximum memory usage are assessed.
 
-### Testbench Results
+### 📊 Testbench Results
 
 | GRADE | TIME    | MEMORY    |
 |-------|---------|-----------|
@@ -108,20 +108,20 @@ The project was evaluated through a private testbench that injects input into th
 
 The last submission of this file took **1.514 s** for processing and used **11.5 MiB** of memory at its peak.
 
-## How to Compile and Run
+## 🛠️ How to Compile and Run
 
 ```bash
 gcc main.c -o main
 ./main < input.txt > out.txt
 ```
 
-## Main Files
+## 📂 Main Files
 
 - `main.c` — main logic and data structures
 - `Specifica.pdf` — project specification
 - `Testbenches` — test cases
 
-## Author
+## ✍️ Author
 
 **Vittorio Sironi**  
 Politecnico di Milano
