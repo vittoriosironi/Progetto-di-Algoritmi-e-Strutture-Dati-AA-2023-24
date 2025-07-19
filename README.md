@@ -40,6 +40,8 @@ gcc main.c -o main
 **Vittorio Sironi**  
 Politecnico di Milano
 
+**Voto conseguito: 30/30**
+
 ---
 
 # 🇬🇧 PASTICCERIA Project - Algorithms & Data Structures
@@ -83,3 +85,5 @@ gcc main.c -o main
 
 **Vittorio Sironi**  
 Politecnico di Milano
+
+**Final grade: 30/30**
