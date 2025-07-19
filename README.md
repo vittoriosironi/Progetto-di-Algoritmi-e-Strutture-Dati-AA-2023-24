@@ -22,6 +22,26 @@ Questo progetto simula la gestione di una pasticceria, ottimizzando la preparazi
 - Alberi binari di ricerca per ordini e lotti
 - Liste doppiamente collegate per ordini in attesa e ingredienti
 
+## 🔢 Requisiti di valutazione
+
+Il progetto è stato valutato attraverso un testbench privato che inietta un input nel file stdin e analizza l'output prodotto su stdout. Se tale output è corretto, viene valutata la durata dell'elaborazione e l'impiego massimo di memoria.
+
+### Risultati del testbench
+
+| VOTO | TEMPO   | MEMORIA   |
+|------|---------|-----------|
+| OPEN | 45.0 s  | 150.0 MiB |
+| 18   | 14.0 s  | 35.0 MiB  |
+| 21   | 11.5 s  | 30.0 MiB  |
+| 24   | 9.0 s   | 25.0 MiB  |
+| 27   | 6.5 s   | 20.0 MiB  |
+| 30   | 4.0 s   | 15.0 MiB  |
+| 30L  | 1.5 s   | 14.0 MiB  |
+
+**Nota**: Il test di OPEN è stato inserito con limiti di tempo e memoria volutamente molto larghi per dare un'idea agli studenti che non avessero passato il test del 18 di capire di quanto avessero ecceduto le richieste.
+
+L'ultima sottoposizione di questo file ha impiegato **1.514 s** per l'elaborazione e ha utilizzato **11.5 MiB** di memoria nel suo picco.
+
 ## Compilazione ed esecuzione
 
 ```bash
@@ -67,6 +87,26 @@ This project simulates the management of a pastry shop, optimizing order prepara
 - Hash tables for recipes and ingredients
 - Binary search trees for orders and batches
 - Doubly linked lists for pending orders and ingredients
+
+## 🔢 Evaluation Criteria
+
+The project was evaluated through a private testbench that injects input into the stdin file and analyzes the output produced on stdout. If the output is correct, the processing time and maximum memory usage are assessed.
+
+### Testbench Results
+
+| GRADE | TIME    | MEMORY    |
+|-------|---------|-----------|
+| OPEN  | 45.0 s  | 150.0 MiB |
+| 18    | 14.0 s  | 35.0 MiB  |
+| 21    | 11.5 s  | 30.0 MiB  |
+| 24    | 9.0 s   | 25.0 MiB  |
+| 27    | 6.5 s   | 20.0 MiB  |
+| 30    | 4.0 s   | 15.0 MiB  |
+| 30L   | 1.5 s   | 14.0 MiB  |
+
+**Note**: The OPEN test was included with intentionally large time and memory limits to give students who did not pass the 18 test an idea of how much they exceeded the requirements.
+
+The last submission of this file took **1.514 s** for processing and used **11.5 MiB** of memory at its peak.
 
 ## How to Compile and Run
 
